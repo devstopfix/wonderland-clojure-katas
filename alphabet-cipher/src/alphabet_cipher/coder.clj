@@ -15,12 +15,22 @@
 
 (def simple-alphabet "abcdefghijklmnopqrstuvwxyz")
 
-(def chart     (substitution-chart simple-alphabet))
+(def chart (substitution-chart simple-alphabet))
 
 (def encode-char
   "Return a function that takes a pair of characters and returns
    the encoded character. [R,C]->X"
   (partial get chart))
+
+(defn reverse-chart [chart]
+  "Reverse a substitution chart of [R,C]->X
+   into a chart of [R,X]->C"
+  (reduce into
+          (for [[rc v] chart]
+            (let [[r c] rc]
+              {[r v] c}))))
+
+(def decode-char (partial get (reverse-chart chart)))
 
 (defn encode [keyword message]
   (->>
@@ -30,7 +40,11 @@
     (apply str)))
 
 (defn decode [keyword message]
-  "decodeme")
+  (->>
+    (interleave (cycle keyword) (seq message))
+    (partition 2)
+    (map decode-char)
+    (apply str)))
 
 (defn decipher [cipher message]
   "decypherme")
