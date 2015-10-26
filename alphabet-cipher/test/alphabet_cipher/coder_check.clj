@@ -26,3 +26,12 @@
                            (is
                              (= message (decode keyword message-encoded))
                              (format "(encode \"%s\" \"%s\") -> \"%s\"" keyword message message-encoded)))))
+
+; Test we can determine keyword used to encode a message given the original message and it's ciphertext
+(defspec test-decipher
+         (prop/for-all [keyword  simple-word
+                        sentence simple-words]
+                       (let [plaintext  (apply str sentence)
+                             ciphertext (encode keyword plaintext)]
+                         (is (= keyword (decipher ciphertext plaintext))
+                             (format "(decipher \"%s\" \"%s\") -> \"%s\"" ciphertext plaintext keyword)))))
