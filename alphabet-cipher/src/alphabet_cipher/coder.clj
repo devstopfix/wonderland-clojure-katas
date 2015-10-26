@@ -46,6 +46,29 @@
     (map decode-char)
     (apply str)))
 
-(defn decipher [cipher message]
-  "decypherme")
+(defn decipher-chart [chart]
+  "Reverse a substitution chart of [R,C]->X
+   into a decipher chart of [X,C]->R where
+   R is a letter of the keyword,
+   C is a letter of the plaintext,
+   X is a letter of the ciphertext."
+  (reduce into
+          (for [[[r c] x] chart] {[x c] r})))
 
+(def decipher-char (partial get (decipher-chart chart)))
+
+(defn shortest-repeating-word [s]
+  "Returns the shortest substring (LEFT$) of s that can be repeated
+   to recreate s. e.g. 'catcatc' -> 'cat'"
+  (let [l (count s)]
+    (first
+      (for [n (range 1 (inc l)) :when (= s (apply str (take l (cycle (take n s)))))]
+        (.substring s 0 n)))))
+
+(defn decipher [cipher message]
+  (->>
+    (interleave (seq cipher) (seq message))
+    (partition 2)
+    (map decipher-char)
+    (apply str)
+    (shortest-repeating-word)))

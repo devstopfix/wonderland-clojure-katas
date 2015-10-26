@@ -38,3 +38,18 @@
                                                 (.substring keyword 0 (.length plaintext)))]
                          (is (= expected-keyword (decipher ciphertext plaintext))
                            (format "(decipher \"%s\" \"%s\") -> \"%s\"" ciphertext plaintext expected-keyword)))))
+
+(deftest test-shortest-repeating-word
+            (is
+              (= "scones"
+                 (shortest-repeating-word "sconessconessconessconessconessc"))))
+
+(def long-word (gen/such-that #(> (count %) 5) simple-word))
+
+; Note this test case can fail - e.g a secret of "yy" can be shortened to "y"
+; and the assertion will fail even if the function works
+(defspec test-shortest-repeating-words
+         (prop/for-all [w long-word
+                        l gen/s-pos-int]
+                       (let [s (apply str (repeat l w))]
+                         (is (= w (shortest-repeating-word s))))))
