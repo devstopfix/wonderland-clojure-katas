@@ -1,4 +1,4 @@
-(defproject alphabet-cipher "0.1.2"
+(defproject alphabet-cipher "0.1.3"
   :description "Lewis Carroll's Alphabet Cipher"
   :url "https://github.com/gigasquid/wonderland-clojure-katas/tree/master/alphabet-cipher"
   :license {:name "Eclipse Public License"
