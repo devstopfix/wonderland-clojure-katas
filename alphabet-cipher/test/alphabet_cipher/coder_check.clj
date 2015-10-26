@@ -1,7 +1,6 @@
 (ns alphabet-cipher.coder-check
   (:require [clojure.test :refer :all]
             [alphabet-cipher.coder :refer :all]
-            [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
             [clojure.test.check.clojure-test :as ct :refer (defspec)]))
@@ -27,11 +26,15 @@
                              (= message (decode keyword message-encoded))
                              (format "(encode \"%s\" \"%s\") -> \"%s\"" keyword message message-encoded)))))
 
-; Test we can determine keyword used to encode a message given the original message and it's ciphertext
+; Test we can determine keyword used to encode a message given the original message and it's ciphertext.
+; We have to
 (defspec test-decipher
          (prop/for-all [keyword  simple-word
-                        sentence simple-words]
+                        sentence (gen/such-that not-empty simple-words)]
                        (let [plaintext  (apply str sentence)
-                             ciphertext (encode keyword plaintext)]
-                         (is (= keyword (decipher ciphertext plaintext))
-                             (format "(decipher \"%s\" \"%s\") -> \"%s\"" ciphertext plaintext keyword)))))
+                             ciphertext (encode keyword plaintext)
+                             expected-keyword (if (<= (.length keyword) (.length plaintext))
+                                                keyword
+                                                (.substring keyword 0 (.length plaintext)))]
+                         (is (= expected-keyword (decipher ciphertext plaintext))
+                           (format "(decipher \"%s\" \"%s\") -> \"%s\"" ciphertext plaintext expected-keyword)))))
